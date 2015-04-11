@@ -149,20 +149,13 @@ Function to set the current timer value from a control system.
 function setTime(){
 	console.log('Am I called?');
 	var timeValue = $("#timeFlip").val();
-	console.log(timeValue);
-	//Hours
-	//var hrTenDig = $('#hrTens').val();
-	//console.log(hrTenDig);
-	//var hrOneDig = $('#hrOnes').val();
-	//Minutes
-	//var mnTenDig = $('#mnTens').val();
-	//var mnOneDig = $('#mnOnes').val();
-	//Seconds
-	//var scTenDig = $('#scTens').val();
-	//var scOneDig = $('#scOnes').val();
-	//Milliseconds
-	//var milliDig = $('#millis').val();
-	//timer.textContent = hrTenDig + hrOneDig + ':' + mnTenDig + mnOneDig + ":" + scTenDig + scOneDig + ":" + milliDig;
+	var hours = timeValue.substring(timeValue.length-8,timeValue.length-6);
+	var minutes = timeValue.substring(timeValue.length-5,timeValue.length-3);
+	var seconds = timeValue.substring(timeValue.length-2,timeValue.length);
+	console.log(hours);
+	console.log(minutes);
+	console.log(seconds);
+	timer.textContent = hours + ':' + minutes + ":" + seconds + ":000";
 }
 
 /**
