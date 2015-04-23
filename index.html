@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="utf-8"/>
-	<title>Tick Timer V. 1</title>
+	<title>Tick Timer V. 0.4</title>
 	<link rel="stylesheet" href="css/jquery.mobile-1.4.5.min.css" />
 	<link rel="stylesheet" href="css/jqm-datebox-1.4.5.min.css" />
 	<script src="libs/jquery-2.1.3.min.js"></script>
@@ -11,57 +11,48 @@
 	<script src="libs/tickTimer.js"></script>
 </head>
 <body>
-	<div id="display">
-		<div id="timerImage">
-			<h3 id="timer">00:00:00.000</h3>
+<div data-role="page">
+
+	<div data-role="header">
+		<h1>Tick Timer 0.4</h1>
+	</div>
+	<div role="main" class="ui-content" id="display">
+		<div id="timerImage" style="text-align: center;">
+			<h1 id="timer">00:00:00.000</h1>
 		</div>
-		<div data-role="controlgroup" data-type="horizontal" id="controls">
+		<div data-role="controlgroup" data-type="horizontal" id="timeControls" style="text-align: center;">
 			<button id="timeSet">Set</button>
 			<button id="start">Start</button>
-			<button id="reset">Reset</button>
-			<select id="cadenceChooser">
-				<option value="No">No BPM</option>
-				<option value="15">15 BPM</option>
-				<option value="30">30 BPM</option>
-				<option value="60">60 BPM</option>
-				<option value="90">90 BPM</option>
-				<option value="120">120 BPM</option>
-				<option value="150">150 BPM</option>
-				<option value="180">180 BPM</option>
-			</select>
+			<button id="reset">Reset</button>			
+		</div>
+		<div data-role="controlgroup" data-type="horizontal" id="modControls" style="text-align: center;">
+			<a href="#cadencePanel" class="ui-btn ui-shadow ui-corner-all ui-btn-inline ui-btn-mini">Cadence Settings</a>
+			<a href="#timerPanel" class="ui-btn ui-shadow ui-corner-all ui-btn-inline ui-btn-mini">Timer Presets</a>
+			<a href="#workoutPanel" class="ui-btn ui-shadow ui-corner-all ui-btn-inline ui-btn-mini">Workout Programs</a>
 		</div>
 	</div>
 	<div data-role="popup" id="timeSetDialog" class="ui-content" data-theme="a" style="max-width:75%; max-height:50%;">
 		<input name="timeFlip" id="timeFlip" type="text" data-role="datebox" data-options='{"mode":"durationflipbox", "hideContainer":"true", "closeCallback":"setTime", "overrideDurationOrder":["h","i","s"]}' />
-		<!-- <div id="testTime" class="grid-ui-b ui-responsive">
-			
-			<div class="ui-block-a">
-				<input id="hrTens" type="number" min="0" max="9" value="0" size="1"></input>
-				<input id="hrOnes" type="number" min="0" max="9" value="0" size="1"></input>
-			</div>
-			<b>:</b>
-			
-			<div class="ui-block-b">
-				<input id="mnTens" type="number" min="0" max="9" value="0" size="1"></input>
-				<input id="mnOnes" type="number" min="0" max="9" value="0" size="1"></input>
-			</div>
-			<b>:</b>
-			
-			<div class="ui-block-c">
-				<input id="scTens" type="number" min="0" max="9" value="0" size="1"></input>
-				<input id="scOnes" type="number" min="0" max="9" value="0" size="1"></input>
-			</div>
-			<div class="ui-block-d">
-				<b id="millis">:000</b>
-			</div>
-		</div> -->
-		<!--<div data-role="controlgroup" data-type="horizontal" id="timerControls">
-			<a id="timeSet" href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-transition="pop">OK</a>
-			<a id="cancelTimeSet" href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-inline" data-transition="pop">Cancel</a>
-		</div>-->
 	</div>
-	<div>
-		<audio id="metronome" src="media/slap.mp3">
+	<div data-role="panel" id="cadencePanel" data-position="left" data-display="push">
+			<a href="#" class="ui-btn ui-shadow ui-corner-all ui-btn-inline ui-btn-mini" data-rel="close">Close Panel</a>
+			<label for="bpmSlider">BPM:</label>
+			<input name="bpmSlider" id="bpmSlider" min="0" max="250" value="60" type="range">
+			<select id="signalChooser">
+				<option selected="selected" value="slap.wav">Clap</option>
+				<option value="snap.wav">Snap</option>
+			</select>
 	</div>
+	<div data-role="panel" id="timerPanel" data-position="right" data-display="push">
+		<a href="#" class="ui-btn ui-shadow ui-corner-all ui-btn-inline ui-btn-mini" data-rel="close">Close Panel</a>
+		<button id="saveSetting">Save New Preset</button>
+	</div>
+	<div id="hiddenAudio">
+		<audio id="metronome" src="media/slap.wav">
+	</div>
+	<div data-role="footer">
+		<h4><a href="http://www.viridianforge.com">Viridian Forge Software</a></h4>
+	</div>
+</div>
 </body>
 </html>

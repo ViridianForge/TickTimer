@@ -1,132 +1,149 @@
 /**
 * Databases
 */
-var timerDB = { "timers": [
-	{"name":"Test 1", "length": "120000", "cadence": "1000", "tick":"default 1"},
-	{"name":"Test 2", "length": "60000", "cadence": "2000", "tick":"default 2"},
-	{"name":"Test 3", "length": "180000", "cadence": "500", "tick":"default 3"}
-	]
-};
+var timerDB = null;
 
-var workoutDB = { "workOuts": [
-	{	"Workout 1": [
-			"Test 1",
-			"Test 1"
-			],
-		"Workout 2": [
-			"Test 2",
-			"Test 3",
-			"Test 1",
-			"Test 2"
-			],
-		"Workout 3": [
-			"Test 2"
-		]
-	}
-	]
-};
+var workoutDB = null;
 
 /**
 * Globals
 */
-
-//Time Elements
-var hrTens = null;
-var hrOnes = null;
-
-var mnTens = null;
-var mnOnes = null;
-
-var scTens = null;
-var scOnes = null;
-
-var millis = null;
-
-//Control Elements
-var timer = null;
-var start = null;
-var reset = null;
+//Fields to cache elements that are frequently accessed.
+var timeVis = null;
+var timeFlipper = null;
+var timeSet = null;
+var startButton = null;
+var cadenceChoose = null;
+var signalChoose = null;
+var metronome = null;
+var timerList = null;
 
 //Current Timer Modifiers
 var curSound = null;
 var curCadence = null;
 var curDuration = null;
 var curTimer = null;
+var origTimer = null;
 var curWorkout = null;
 var timerRunning = null;
 var lastTick = null;
 
-//Current Timer Data
-var curHour = null;
-var curMin = null;
-var curSec = null;
-var curCentSec = null;
+//Metronome Sound Related things
+var curMetSound = null;
 
 var running = false;
 
 //Initialize things on Window Load
 window.onload = function(){
 	
-	var hrTens = $('#hrTens');
-	var hrOnes = $('#hrTens');
-
-	var mnTens = $('#hrTens');
-	var mnOnes = $('#hrTens');
-
-	var scTens = $('#hrTens');
-	var scOnes = $('#hrTens');
-
-	var millis = $('#hrTens');
+	//Cache elements that are frequently accessed.
+	timeVis = $('#timer');
+	timeSet = $('#timeSet');
+	startButton = $('#start');
+	cadenceChoose = $('#bpmSlider');
+	signalChoose = $('#signalChooser');
+	timeFlipper = $('#timeFlip');
+	timerList = $('#timerPanel');
 	
-	timer = document.getElementById('timer');
-	start = document.getElementById('start');
-	reset = document.getElementById('reset');
+	//Test to see if local storage has anything related to the timer or workout information.
+	if(!localStorage.getItem('timerDB')){
+		timerDB = [];
+	}else{
+		timerDB = localStorage.getItem('timerDB');
+		console.log(timerDB);
+		console.log(timerDB[0]);
+		for(var setting in timerDB){
+			console.log(setting);
+			addPreset(setting[1],setting[2],setting[3]);
+		}
+	}
 	
-	metronome = document.getElementById('metronome');
-
+	if(!localStorage.getItem('workoutDB')){
+		workoutDB = [];
+	}else{
+		workoutDB = localStorage.getItem('workoutDB');
+	}
+	
 	//Assign Button onClick Events
+	
+	//Start Button
 	$('#start').click(function(){
 		if(running === false){
 			running = true;
-			$('#start').text("Pause");
-			curDuration = 43510650;
+			startButton.text("Pause");
+			curDuration = getCurTime();
 			lastTick = curDuration;
-			curCadence = detCadence(document.getElementById("cadenceChooser").value);
-			console.log(curCadence);
+			curCadence = detCadence(cadenceChoose.val(),signalChoose.val());
 			runTimer();
 		}else{
 			clearInterval(timerRunning);
 			running = false;
-			$('#start').text("Start");;
+			startButton.text("Start");
 		}
 	});
 
+	//Reset Button
 	$('#reset').click(function(){
 		clearInterval(timerRunning);
-		timer.textContent = "00:00:00.000";
-		curHour = 0;
-		curMin = 0;
-		curSec = 0;
-		curCentSec = 0;
+		$('#timer').text(origTimer);
+		if(running === true){
+			running = false;
+			startButton.text("Start");
+		}
 	});
 	
+	//Set Button
 	$('#timeSet').click(function(){
-		$('#timeFlip').datebox('open');
+		timeFlipper.datebox('open');
+	});
+	
+	//Override functions for Dateflipper here?
+	
+	//Save the current settings as a new Timer Setting
+	$('#saveSetting').click(function(){
+		var newPreset = [origTimer, cadenceChoose.val(), signalChoose.val()];
+		timerDB.push(newPreset);
+		localStorage.setItem('timerDB',timerDB);
+		//Add button representing new object
+		console.log(timerDB);
+		addPreset(origTimer, cadenceChoose.val(), signalChoose.val());
 	});
 }
 
 //Timer related functions
 
-/**
-Function to define a new addition to the timer DB
-*/
-function newTimer(name, duration, cadence, sound){
-}
-
-/**
-Function to change settings on a pre-existing timer
-*/
-function setTimer(name, duration, cadence, sound){
+function addPreset(time, cadence, effect){
+	var idString = time+cadence+effect;
+	var delIDString = 'del'+idString;
+	var gridIDString = 'grid'+idString;
+	//Begin by adding grid structure
+	var appendNode = '<div class="ui-grid-a" id="'+gridIDString+'">';
+	//Add Preset Button Structure
+	appendNode+= '<div class="ui-block-a"><div class="ui-bar ui-bar-a" style="height: 60px;">';
+	appendNode+= '<button id="'+idString+'">'+ time + ' ' + cadence + ' ' + effect +'</button>';
+	appendNode+= '</div></div>';
+	//Add Delete Button Structure
+	appendNode+= '<div class="ui-block-a"><div class="ui-bar ui-bar-a" style="height: 60px;">';
+	appendNode+= '<button id="'+delIDString+'" class="ui-btn ui-icon-delete ui-btn-icon-notext ui-corner-all"> Remove </button>';
+	appendNode+= '</div></div>';
+	//End grid structure and add new feature
+	appendNode+= '</div>';
+	timerList.append(appendNode);
+	timerList.enhanceWithin();
+	//Add event listeners
+	$('#'+idString).click(function(){
+		console.log(' Preset Pressed?')
+		$('#timer').text(time);
+		$('#bpmSlider').slider('value',cadence);
+		$('#signalChooser').val(effect);
+	});
+	$('#'+delIDString).click(function(){
+		console.log(' Preset Deleted?')		
+		//Delete related grid structure
+		$('#'+gridIDString).remove();
+		//According to (http://stackoverflow.com/questions/12528049/if-a-dom-element-is-removed-are-its-listeners-also-removed-from-memory), jQuery should be doing binding cleanups when calling remove.
+		timerList.enhanceWithin();
+	});
 }
 
 /**
@@ -143,19 +160,25 @@ Function to define a new addition to the workout DB
 function newWorkout(name){
 }
 
+function getCurTime(){
+	var timeString = timeVis.text();
+	var hours = parseInt(timeString.substring(0,2));
+	var minutes = parseInt(timeString.substring(3,5));
+	var seconds = parseInt(timeString.substring(6,8));
+	var millis = parseInt(timeString.substring(9,12));
+	return hours*3600000 + minutes*60000 + seconds*1000 + millis;
+}
+
 /**
 Function to set the current timer value from a control system.
 */
 function setTime(){
-	console.log('Am I called?');
-	var timeValue = $("#timeFlip").val();
+	var timeValue = timeFlipper.val();
 	var hours = timeValue.substring(timeValue.length-8,timeValue.length-6);
 	var minutes = timeValue.substring(timeValue.length-5,timeValue.length-3);
 	var seconds = timeValue.substring(timeValue.length-2,timeValue.length);
-	console.log(hours);
-	console.log(minutes);
-	console.log(seconds);
-	timer.textContent = hours + ':' + minutes + ":" + seconds + ":000";
+	origTimer = hours + ':' + minutes + ":" + seconds + ":000";
+	timeVis.text(origTimer);
 }
 
 /**
@@ -164,7 +187,6 @@ Function to start current timer operation
 function runTimer(){
 	//Prep Timer
 	timerRunning = window.setInterval(countdown, 33);
-	console.log(timerRunning);
 }
 
 /**
@@ -175,7 +197,7 @@ function countdown(){
 	curDuration = curDuration - 33;
 	if(curDuration <= 0){
 		clearInterval(timerRunning);
-		timer.textContent = "00:00:00.000";
+		timeVis.text("00:00:00.000");
 		curHour = 0;
 		curMin = 0;
 		curSec = 0;
@@ -189,7 +211,7 @@ function updateTimer(time){
 		//console.log(lastTick)
 		//console.log(time)
 		if((lastTick - time) > curCadence){
-			metronome.play();
+			curMetSound.play();
 			//console.log("Tick");
 			lastTick = time;
 		}
@@ -216,11 +238,15 @@ function timeString(input, digits){
 	return output;
 }
 
-function detCadence(selection){
-	if(selection === 'No'){
+function detCadence(selection, effect){
+	if(selection === 0){
 		return 0;
 	}else{
 		//Convert the cadence selection into a ms representation of BPM.
+		console.log(effect)
+		console.log(metronome);
+		curMetSound = new Audio('media/' + effect);
+		console.log(metronome);
 		return (60 / parseInt(selection)) * 1000;
 	}
 }
