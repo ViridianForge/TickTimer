@@ -1,9 +1,8 @@
 /**
 * Databases
 */
-var timerDB = null;
-
-var workoutDB = null;
+timerPresets = null;
+workoutPresets = null;
 
 /**
 * Globals
@@ -46,20 +45,21 @@ window.onload = function(){
 	timerList = $('#timerPanel');
 	
 	//Test to see if local storage has anything related to the timer or workout information.
-	if(!localStorage.getItem('timerDB')){
-		timerDB = [];
+	if(!localStorage.getItem('timerPresets')){
+		timerPresets = 0;
+		localStorage.setItem('timerPresets',timerPresets);
 	}else{
-		timerDB = localStorage.getItem('timerDB');
-		console.log(timerDB);
-		console.log(timerDB[0]);
-		for(var setting in timerDB){
-			console.log(setting);
-			addPreset(setting[1],setting[2],setting[3]);
+		var numPresets = localStorage.getItem('timerPresets');
+		console.log(numPresets);
+		
+		for(var i=0; i<numPresets; i++){
+			console.log(i);
 		}
 	}
 	
-	if(!localStorage.getItem('workoutDB')){
-		workoutDB = [];
+	if(!localStorage.getItem('workoutPresets')){
+		workoutPresets = 0;
+		localStorage.setItem('workoutPresets',workoutPresets);
 	}else{
 		workoutDB = localStorage.getItem('workoutDB');
 	}
@@ -101,12 +101,19 @@ window.onload = function(){
 	
 	//Save the current settings as a new Timer Setting
 	$('#saveSetting').click(function(){
-		var newPreset = [origTimer, cadenceChoose.val(), signalChoose.val()];
-		timerDB.push(newPreset);
-		localStorage.setItem('timerDB',timerDB);
+		timerPresets++;
+		localStorage.setItem(timerPresets.toString()+'_duration',origTimer);
+		localStorage.setItem(timerPresets.toString()+'_cadence',cadenceChoose.val());
+		localStorage.setItem(timerPresets.toString()+'_signal',signalChoose.val());
+		localStorage.setItem('timerPresets',timerPresets);
 		//Add button representing new object
-		console.log(timerDB);
 		addPreset(origTimer, cadenceChoose.val(), signalChoose.val());
+	});
+	
+	$('#resetStorage').click(function(){
+		localStorage.clear();
+		timerPresets = 0;
+		workoutPresets = 0;
 	});
 }
 
