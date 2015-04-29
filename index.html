@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta charset="utf-8"/>
-	<title>Tick Timer V. 0.6</title>
+	<title>Tick Timer V. 0.7</title>
 	<link rel="stylesheet" href="css/jquery.mobile-1.4.5.min.css" />
 	<link rel="stylesheet" href="css/jqm-datebox-1.4.5.min.css" />
 	<script src="libs/jquery-2.1.3.min.js"></script>
@@ -14,7 +14,7 @@
 <div data-role="page">
 
 	<div data-role="header">
-		<h1>Tick Timer 0.6</h1>
+		<h1>Tick Timer 0.7</h1>
 	</div>
 	<div role="main" class="ui-content" id="display">
 		<div id="timerImage" style="text-align: center;">
@@ -46,6 +46,9 @@
 	<div data-role="panel" id="timerPanel" data-position="right" data-display="push">
 		<a href="#" class="ui-btn ui-shadow ui-corner-all ui-btn-inline ui-btn-mini" data-rel="close">Close Panel</a>
 		<button id="saveSetting">Save New Preset</button>
+		<br>
+		<ul id="timerMenu" data-role="listview">
+		</ul>
 	</div>
 	<div id="hiddenAudio">
 		<audio id="metronome" src="media/slap.wav">

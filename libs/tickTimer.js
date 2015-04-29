@@ -42,7 +42,7 @@ window.onload = function(){
 	cadenceChoose = $('#bpmSlider');
 	signalChoose = $('#signalChooser');
 	timeFlipper = $('#timeFlip');
-	timerList = $('#timerPanel');
+	timerList = $('#timerMenu');
 	
 	//Test to see if local storage has anything related to the timer or workout information.
 	if(!localStorage.getItem('timerPresets')){
@@ -53,7 +53,11 @@ window.onload = function(){
 		console.log(numPresets);
 		
 		for(var i=0; i<numPresets; i++){
-			console.log(i);
+			console.log(String(i)+"_duration");
+			curDur = localStorage.getItem(String(i)+"_duration");
+			curCad = localStorage.getItem(String(i)+"_cadence");
+			curSig = localStorage.getItem(String(i)+"_signal");
+			addPreset(curDur, curCad, curSig);
 		}
 	}
 	
@@ -68,7 +72,7 @@ window.onload = function(){
 	
 	//Start Button
 	$('#start').click(function(){
-		if(running === false){
+		if(running === false && getCurTime() > 0){
 			running = true;
 			startButton.text("Pause");
 			curDuration = getCurTime();
@@ -101,13 +105,15 @@ window.onload = function(){
 	
 	//Save the current settings as a new Timer Setting
 	$('#saveSetting').click(function(){
-		timerPresets++;
-		localStorage.setItem(timerPresets.toString()+'_duration',origTimer);
-		localStorage.setItem(timerPresets.toString()+'_cadence',cadenceChoose.val());
-		localStorage.setItem(timerPresets.toString()+'_signal',signalChoose.val());
-		localStorage.setItem('timerPresets',timerPresets);
-		//Add button representing new object
-		addPreset(origTimer, cadenceChoose.val(), signalChoose.val());
+		if(origTimer){
+			timerPresets++;
+			localStorage.setItem(String(timerPresets)+'_duration',origTimer);
+			localStorage.setItem(String(timerPresets)+'_cadence',cadenceChoose.val());
+			localStorage.setItem(String(timerPresets)+'_signal',signalChoose.val());
+			localStorage.setItem('timerPresets',timerPresets);
+			//Add button representing new object
+			addPreset(origTimer, cadenceChoose.val(), signalChoose.val());
+		}
 	});
 	
 	$('#resetStorage').click(function(){
@@ -120,37 +126,27 @@ window.onload = function(){
 //Timer related functions
 
 function addPreset(time, cadence, effect){
-	var idString = time+cadence+effect;
+	var idString = 'Preset_' + String(timerPresets);
 	var delIDString = 'del'+idString;
-	var gridIDString = 'grid'+idString;
 	//Begin by adding grid structure
-	var appendNode = '<div class="ui-grid-a" id="'+gridIDString+'">';
-	//Add Preset Button Structure
-	appendNode+= '<div class="ui-block-a"><div class="ui-bar ui-bar-a" style="height: 60px;">';
-	appendNode+= '<button id="'+idString+'">'+ time + ' ' + cadence + ' ' + effect +'</button>';
-	appendNode+= '</div></div>';
-	//Add Delete Button Structure
-	appendNode+= '<div class="ui-block-a"><div class="ui-bar ui-bar-a" style="height: 60px;">';
-	appendNode+= '<button id="'+delIDString+'" class="ui-btn ui-icon-delete ui-btn-icon-notext ui-corner-all"> Remove </button>';
-	appendNode+= '</div></div>';
-	//End grid structure and add new feature
-	appendNode+= '</div>';
+	var appendNode = '<li><a id="'+idString+'" href="#">' + String(time) + '</a></li>';
 	timerList.append(appendNode);
-	timerList.enhanceWithin();
+	timerList.listview("refresh");
 	//Add event listeners
-	$('#'+idString).click(function(){
+	$('#'+idString).on("click",function(){
 		console.log(' Preset Pressed?')
 		$('#timer').text(time);
-		$('#bpmSlider').slider('value',cadence);
+		$('#bpmSlider').val(cadence);
+		$('#bpmSlider').slider('refresh');
 		$('#signalChooser').val(effect);
 	});
-	$('#'+delIDString).click(function(){
-		console.log(' Preset Deleted?')		
-		//Delete related grid structure
-		$('#'+gridIDString).remove();
-		//According to (http://stackoverflow.com/questions/12528049/if-a-dom-element-is-removed-are-its-listeners-also-removed-from-memory), jQuery should be doing binding cleanups when calling remove.
-		timerList.enhanceWithin();
-	});
+	//$('#'+delIDString).click(function(){
+	//	console.log(' Preset Deleted?')		
+	//	//Delete related grid structure
+	//	$('#'+gridIDString).remove();
+	//	//According to (http://stackoverflow.com/questions/12528049/if-a-dom-element-is-removed-are-its-listeners-also-removed-from-memory), jQuery should be doing binding cleanups when calling remove.
+	//	timerList.enhanceWithin();
+	//});
 }
 
 /**
